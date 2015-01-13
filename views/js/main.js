@@ -293,7 +293,9 @@ var nonMeatLen = pizzaIngredients.nonMeats.length;
 var cheeseLen= pizzaIngredients.cheeses.length;
 var sauceLen = pizzaIngredients.sauces.length;
 var crustLen = pizzaIngredients.crusts.length;
-
+var items;
+var itemLen;
+//var cachedScrollTop=document.body.scrollTop; //Added from https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
 
 
@@ -390,7 +392,7 @@ var pizzaElementGenerator = function(i) {
   pizzaContainer.id = "pizza" + i;                // gives each pizza element a unique id
   pizzaImageContainer.classList.add("col-md-6");
 
-  pizzaImage.src = "images/pizza.png";
+  pizzaImage.src = "images/pizza_min.png";
   pizzaImage.classList.add("img-responsive");
   pizzaImageContainer.appendChild(pizzaImage);
   pizzaContainer.appendChild(pizzaImageContainer);
@@ -415,28 +417,11 @@ var resizePizzas = function(size) {
   window.performance.mark("mark_start_resize");   // User Timing API function
 
   // Changes the value for the size of the pizza above the slider
-  function changeSliderLabel(size) {
-    switch(size) {
-      case "1":
-        document.querySelector("#pizzaSize").innerHTML = "Small";
-        return;
-      case "2":
-        document.querySelector("#pizzaSize").innerHTML = "Medium";
-        return;
-      case "3":
-        document.querySelector("#pizzaSize").innerHTML = "Large";
-        return;
-      default:
-        console.log("bug in changeSliderLabel");
-    }
-  }
 
-  changeSliderLabel(size);
-
-  // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSlices(size).
+  // Returns the size difference to change a pizza element from one size to another. Called by changePizzaSizes(size).
   function determineDx (elem, size) {
     var oldwidth = elem.offsetWidth;
-    var windowwidth = document.querySelector("#randomPizzas").offsetWidth;
+    var windowwidth = document.getElementById("randomPizzas").offsetWidth;
     var oldsize = oldwidth / windowwidth;
 
     // TODO: change to 3 sizes? no more xl?
@@ -444,10 +429,13 @@ var resizePizzas = function(size) {
     function sizeSwitcher (size) {
       switch(size) {
         case "1":
+          document.querySelector("#pizzaSize").innerHTML = "Small";
           return 0.25;
         case "2":
+          document.querySelector("#pizzaSize").innerHTML = "Medium";
           return 0.3333;
         case "3":
+          document.querySelector("#pizzaSize").innerHTML = "Large";
           return 0.5;
         default:
           console.log("bug in sizeSwitcher");
@@ -462,10 +450,10 @@ var resizePizzas = function(size) {
 
   // Iterates through pizza elements on the page and changes their widths
   function changePizzaSizes(size) {
-    for (var i = 0; i < document.querySelectorAll(".randomPizzaContainer").length; i++) {
-      var dx = determineDx(document.querySelectorAll(".randomPizzaContainer")[i], size);
-      var newwidth = (document.querySelectorAll(".randomPizzaContainer")[i].offsetWidth + dx) + 'px';
-      document.querySelectorAll(".randomPizzaContainer")[i].style.width = newwidth;
+	  var dx = determineDx(document.getElementsByClassName('randomPizzaContainer')[0], size); //We only need to calculate this once
+	  var newwidth = (document.getElementsByClassName('randomPizzaContainer')[0].offsetWidth + dx) + 'px'; 
+    for (var i = 0; i < document.getElementsByClassName('randomPizzaContainer').length; i++) {
+      document.getElementsByClassName('randomPizzaContainer')[i].style.width = newwidth;
     }
   }
 
@@ -513,10 +501,15 @@ function logAverageFrame(times) {   // times is the array of User Timing measure
 function updatePositions() {
   frame++;
   window.performance.mark("mark_start_frame");
-
-  var items = document.querySelectorAll('.mover');
+  
   var cachedScrollTop=document.body.scrollTop; //Added from https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
-  for (var i = 0; i < items.length; i++) {
+  if (items == undefined) {
+	  console.log('calculating');
+	  items = document.getElementsByClassName('mover'); //changed to getElementsByClassName to improve speed
+	  itemLen = items.length;
+  }
+  
+  for (var i = 0; i < itemLen; i++) {
     var phase = Math.sin((cachedScrollTop / 1250) + (i % 5));
     items[i].style.left = items[i].basicLeft + 100 * phase + 'px';
   }
@@ -541,13 +534,15 @@ document.addEventListener('DOMContentLoaded', function() {
   for (var i = 0; i < 200; i++) {
     var elem = document.createElement('img');
     elem.className = 'mover';
-    elem.src = "images/pizza.png";
+    elem.src = "images/pizza_min.png";
     elem.style.height = "100px";
     elem.style.width = "73.333px";
     elem.basicLeft = (i % cols) * s;
     elem.style.top = (Math.floor(i / cols) * s) + 'px';
-    document.querySelector("#movingPizzas1").appendChild(elem);
+    document.getElementById("movingPizzas1").appendChild(elem); //changed to getElementById
   }
-  updatePositions();
   
+  
+  updatePositions();
+
 });
