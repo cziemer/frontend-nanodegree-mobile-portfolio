@@ -29,9 +29,7 @@ Steps Completed to Optimize this project (Pizza HTML and associated files)
  * Moved pizzasDiv variable out of for loop to eliminate re-calculating
  * Eliminated unnecessary arrays in main.js (same as default)
  * Changed querySelector to getElement statements to yield better results
-
-This is [on GitHub](https://github.com/jbt/markdown-editor) so let me know if I've b0rked it somewhere.
-
+ 
 ### Invaluable sources used:
 
  * [Gulp](http://gulpjs.com/) for compression and validation
